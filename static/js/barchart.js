@@ -38,12 +38,12 @@ var appendColumn = function (index, label, value) {
 };
 
 var addLabel = function (data) {
-  var a = labels.indexOf(data.deviceid);
+  var a = labels.indexOf(data.DeviceId);
   if (a == -1) {
-    labels.push(data.deviceid);
+    labels.push(data.DeviceId);
     a = labels.length - 1;
     columns[a] = [];
-    columns[a].push(data.deviceid);
+    columns[a].push(data.DeviceId);
   }
   return a;
 }
@@ -54,11 +54,13 @@ io.on('data', function (incomingData) {
   var e = document.getElementById('lastupdated');
   e.innerText = Date();
 
-  if (incomingData.timestamp) {
-    appendColumn(pos, labels[pos], roundToOne(incomingData.celsius));
-  } else {
-    console.log('bad timestamp is skipped');
-  }
+  appendColumn(pos, labels[pos], roundToOne(incomingData.Celsius));
+
+  // if (incomingData.timestamp) {
+  //   appendColumn(pos, labels[pos], roundToOne(incomingData.celsius));
+  // } else {
+  //   console.log('bad timestamp is skipped');
+  // }
   chart.load({
     columns: columns
   });
