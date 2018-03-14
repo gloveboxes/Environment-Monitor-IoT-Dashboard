@@ -1,6 +1,6 @@
 # Environment Monitor IoT Dashboard
 
-This is a simple Node.js azure website that shows how to visualize data from eventhub as a real-time graph using [https://d3js.org/](https://d3js.org/) charts.
+This is a simple Node.js azure website that shows how to visualize data from eventhub as a real-time graph using [d3js.org/](https://d3js.org/) charts.
 
 ## Acknowledgements
 
