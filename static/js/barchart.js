@@ -55,7 +55,7 @@ io.on('data', function (incomingData) {
   e.innerText = Date();
 
   if (incomingData.timestamp) {
-    appendColumn(pos, labels[pos], roundToOne(incomingData.avgtemperature));
+    appendColumn(pos, labels[pos], roundToOne(incomingData.celsius));
   } else {
     console.log('bad timestamp is skipped');
   }
