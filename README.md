@@ -62,15 +62,14 @@ Notes.
 1. The output type for Event hub from the Stream Analytics job must be 'Array'
 2. The node.js solutions assumes the event hub name is 'thinglabseventhub'
 
-
 ![Stream Analytics Event Hub Output](https://raw.githubusercontent.com/gloveboxes/Environmental-Data-IoT-Dashboard/master/resources/StreamAnalyticsEventHubOutput.png)
-
 
 ## Node.js Tip. Updating NPM Packages to the latest verison
 
 Check out npm-check-updates to help with this workflow.
 
 ### Install npm-check-updates
-1. Run npm-check-updates to list what packages are out of date (basically the same thing as running npm outdated)
-2. Run npm-check-updates -u to update all the versions in your package.json (this is the magic sauce)
-3. Run npm update as usual to install the new versions of your packages based on the updated package.json
+
+1. Run **npm-check-updates** to list what packages are out of date (basically the same thing as running npm outdated)
+2. Run **npm-check-updates -u** to update all the versions in your package.json (this is the magic sauce)
+3. Run **npm update** as usual to install the new versions of your packages based on the updated package.json

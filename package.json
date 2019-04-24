@@ -9,13 +9,13 @@
     "start": "node app.js"
   },
   "dependencies": {
-    "azure-event-hubs": "0.0.8",
+    "@azure/event-hubs": "^2.0.0",
     "coffee-script": "1.12.7",
     "connect": "3.6.6",
-    "dotenv": "^5.0.1",
+    "dotenv": "^7.0.0",
     "express.io": "1.1.13",
-    "uuid": "3.2.1",
-    "azure-storage": "^2.7.0",
+    "uuid": "3.3.2",
+    "azure-storage": "^2.10.3",
     "sort-array": "^2.0.0"
   }
 }

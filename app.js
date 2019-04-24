@@ -1,6 +1,7 @@
 var express = require('express.io')
 var uuid = require('uuid');
-var EventHubClient = require('azure-event-hubs').Client;
+var { EventHubClient, EventPosition } = require('@azure/event-hubs');
+
 var azureStorage = require('azure-storage');
 var sortBy = require('sort-array')
 try {
@@ -13,9 +14,7 @@ catch (err) { };
 app = express().http().io()
 
 var eventHubConnectionString = process.env.EVENTHUB_CONNSTRING || ''
-var eventHubName = process.env.EVENTHUBNAME || 'chart-data'
 var sensorStateTableConnectionString = process.env.SENSOR_STATE_TABLE_CONNSTRING || ''
-var client = EventHubClient.fromConnectionString(eventHubConnectionString, eventHubName)
 var tableSvc = azureStorage.createTableService(sensorStateTableConnectionString);
 
 // Setup your sessions, just like normal.
@@ -28,51 +27,44 @@ app.get('/', function (req, res) {
   res.sendfile(__dirname + '/index.html')
 });
 
-
-var processEvent = function (ehEvent) {
-  app.io.broadcast('data', ehEvent.body);
-  return;
-
-  // this code required if processing an json array of data
-  ehEvent.body.forEach(function (value) {
-    try {
-      app.io.broadcast('data', value);
-    } catch (err) {
-      console.log("Error sending: " + value);
-      console.log(typeof (value));
-    }
-  });
-};    // console.log(value);cookieParser
-
 app.use(express.static(__dirname + '/static'));
 
-// Instantiate an eventhub client
+
+var printError = function (err) {
+  console.log(err.message);
+};
+
+
+var broadcastData = function (ehEvent) {
+  app.io.broadcast('data', ehEvent.body);
+  return;
+};
+
+
+var ehClient;
+EventHubClient.createFromIotHubConnectionString(eventHubConnectionString).then(function (client) {
+  console.log("Successfully created the EventHub Client from Azure IoT Hub connection string.");
+  ehClient = client;
+  return ehClient.getPartitionIds();
+}).then(function (ids) {
+  console.log("The partition ids are: ", ids);
+  return ids.map(function (id) {
+    return ehClient.receive(id, broadcastData, printError, { eventPosition: EventPosition.fromEnqueuedTime(Date.now()) });
+  });
+}).catch(printError);
+
 
 app.io.route('ready', function (req) {
-
   var query = new azureStorage.TableQuery()
-  .where('PartitionKey eq ?', 'Forbes');
-  tableSvc.queryEntities('DeviceState',query, null, function(error, result, response) {
-    if(!error) {
+    .where('PartitionKey eq ?', 'Forbes');
+  tableSvc.queryEntities('DeviceState', query, null, function (error, result, response) {
+    if (!error) {
       sortBy(response.body.value, 'DeviceId')
-      response.body.value.forEach(function (value){
+      response.body.value.forEach(function (value) {
         // console.log(value.Location);
         app.io.broadcast('data', value);
       });
     }
-  });
-
-  // For each partition, register a callback function
-  client.getPartitionIds().then(function (ids) {
-    ids.forEach(function (id) {
-      var minutesAgo = 0;
-      var before = (minutesAgo * 60 * 1000);
-      client.createReceiver('reporting', id, { startAfterTime: Date.now() - before })
-        .then(function (rx) {
-          rx.on('errorReceived', function (err) { console.log(err); });
-          rx.on('message', processEvent);
-        });
-    });
   });
 });
 
