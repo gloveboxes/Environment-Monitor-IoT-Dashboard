@@ -1,7 +1,6 @@
 var express = require('express.io')
 var uuid = require('uuid');
 var { EventHubClient, EventPosition } = require('@azure/event-hubs');
-
 var azureStorage = require('azure-storage');
 var sortBy = require('sort-array')
 try {
@@ -13,8 +12,10 @@ catch (err) { };
 
 app = express().http().io()
 
-var eventHubConnectionString = process.env.EVENTHUB_CONNSTRING || ''
-var sensorStateTableConnectionString = process.env.SENSOR_STATE_TABLE_CONNSTRING || ''
+const eventHubConnectionString = process.env.EVENTHUB_CONNSTRING || ''
+const consumerGroup = process.env.EVENTHUB_CONSUMERGROUP || ''
+const sensorStateTableConnectionString = process.env.SENSOR_STATE_TABLE_CONNSTRING || ''
+
 var tableSvc = azureStorage.createTableService(sensorStateTableConnectionString);
 
 // Setup your sessions, just like normal.
@@ -49,7 +50,7 @@ EventHubClient.createFromIotHubConnectionString(eventHubConnectionString).then(f
 }).then(function (ids) {
   console.log("The partition ids are: ", ids);
   return ids.map(function (id) {
-    return ehClient.receive(id, broadcastData, printError, { eventPosition: EventPosition.fromEnqueuedTime(Date.now()) });
+    return ehClient.receive(id, broadcastData, printError, { eventPosition: EventPosition.fromEnqueuedTime(Date.now()), consumerGroup: consumerGroup });
   });
 }).catch(printError);
 
